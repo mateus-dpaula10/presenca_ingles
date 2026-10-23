@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <title>Presença</title>
+  <meta name="description" content="Presença nas aulas mês a mês: marque os dias em que foi e os eventos da empresa, que ficam fora da porcentagem.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#3f3cbb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121318" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="icon" href="icons/icon-192.png" type="image/png" sizes="192x192">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Presença">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="stylesheet" href="css/styles.css">
+  <script>
+    // Aplica o tema salvo antes da primeira pintura (evita "piscar" claro/escuro).
+    try {
+      var t = localStorage.getItem('presenca:theme');
+      if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    } catch (e) {}
+    // Sem zoom no iPhone: o Safari ignora o user-scalable=no da meta viewport, então a pinça é barrada aqui.
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (ev) {
+      document.addEventListener(ev, function (e) { e.preventDefault(); }, { passive: false });
+    });
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Pular para o conteúdo</a>
+
+  <p class="faixa-local" id="faixa-local" hidden>Modo local: os dados ficam só neste navegador. <a href="#/ajustes">Saber mais</a></p>
+
+  <div class="shell" id="shell" hidden>
+    <nav class="nav" aria-label="Seções do app">
+      <a class="brand" href="#/calendario" aria-label="Presença, calendário">
+        <img src="icons/icon.svg" alt="" width="32" height="32">
+        <span>Presença</span>
+      </a>
+      <ul class="nav-list" id="nav-list"></ul>
+    </nav>
+    <main id="main" class="main" tabindex="-1"></main>
+  </div>
+
+  <div id="auth-root"><p class="carregando" role="status">Carregando…</p></div>
+
+  <dialog id="generic-dialog" class="sheet" aria-labelledby="generic-dialog-title"></dialog>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <noscript>
+    <p style="padding:24px;font-family:system-ui">O app de Presença precisa de JavaScript ativado.</p>
+  </noscript>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
