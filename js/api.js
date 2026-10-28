@@ -2,7 +2,7 @@
 //  - Supabase (login, tempo real), quando js/config.js tem URL e chave;
 //  - local (localStorage deste navegador, com dados de exemplo), para usar e conhecer o app antes de configurar.
 //
-// Decisões (as mesmas da Caderneta, dos Criativos e do Treinos):
+// Decisões (as mesmas da Caderneta e do Treinos):
 //  - supabase-js empacotado em js/vendor/ e carregado só quando precisa;
 //  - flowType 'implicit' + detectSessionInUrl desligado: o link do e-mail volta com os tokens no hash e o app
 //    lê e limpa esse hash ANTES do roteador (capturarRetornoEmail).

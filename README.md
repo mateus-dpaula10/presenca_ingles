@@ -2,7 +2,7 @@
 
 Calendário de presença nas aulas: toque nos dias em que foi à aula e nos dias de **evento da empresa**.
 A porcentagem de cada mês ignora os dias de evento (não contam nem como presença nem como falta).
-Mesmo padrão da Caderneta, dos Criativos e do Treinos: front em HTML/CSS/JS puro (sem build), back no Supabase
+Mesmo padrão da Caderneta e do Treinos: front em HTML/CSS/JS puro (sem build), back no Supabase
 (plano gratuito).
 
 ## O que faz
@@ -23,7 +23,7 @@ Mesmo padrão da Caderneta, dos Criativos e do Treinos: front em HTML/CSS/JS pur
 
 ## Rodar
 
-Com `js/config.js` vazio (como está), o app abre em **modo local**: os dados ficam no navegador e vêm exemplos
+Com `js/config.js` vazio, o app abre em **modo local**: os dados ficam no navegador e vêm exemplos
 (mês passado e o atual). Em **Ajustes** dá para "Começar do zero" ou "Restaurar exemplo".
 Qualquer servidor estático serve. Pelo Laragon, a pasta precisa estar em `C:\laragon\www` (ex.:
 `http://localhost/presenca/`); ou, nesta pasta: `npx serve .`
@@ -31,7 +31,8 @@ Qualquer servidor estático serve. Pelo Laragon, a pasta precisa estar em `C:\la
 ## Ligar ao Supabase (login)
 
 O login segue o mesmo esquema dos outros apps (e-mail e senha, confirmação por link, "esqueci a senha").
-Pode ser o projeto dos Criativos/Treinos: as tabelas ficam no schema **`presenca`**, separado dos outros.
+Está ligado ao projeto **apps** (`vujhnbiohitufdjpdbvq`), o mesmo da Caderneta e do Treinos: as tabelas ficam no
+schema **`presenca`**, separado dos outros, e o login é o mesmo dos dois apps.
 
 1. **SQL Editor → New query**: cole e rode `supabase/schema.sql`.
 2. **Project Settings → Data API → Exposed schemas**: adicione `presenca` e salve. Sem isso o app mostra

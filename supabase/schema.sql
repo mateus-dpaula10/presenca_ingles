@@ -2,9 +2,14 @@
 -- Rode este arquivo inteiro no SQL Editor do projeto (Database → SQL Editor → New query → Run).
 -- Pode rodar de novo sem quebrar nada: tudo usa "if not exists" / "or replace" / "drop ... if exists".
 --
--- Tudo fica no schema "presenca", separado do "public": dá para usar o mesmo projeto dos Criativos/Treinos
--- (o plano grátis só permite 2 projetos ativos). Nada aqui toca nas tabelas ou funções dos outros apps.
+-- Tudo fica no schema "presenca": o app divide o projeto "apps" do Supabase (vujhnbiohitufdjpdbvq) com a Caderneta
+-- (schema "caderneta" + views-ponte no "public") e o Treinos (schema "treinos"). Nada aqui cria ou altera objeto
+-- do public, do caderneta nem do treinos. Única coisa fora do schema: as tabelas presenca.* entram na publicação
+-- "supabase_realtime" (tempo real).
+-- O login (auth.users) é o mesmo do projeto: quem já tem conta na Caderneta/Treinos entra com a mesma senha.
+-- O RLS é ligado aqui de forma explícita (o "ensure_rls" automático do Supabase só cobre o schema public).
 -- Depois de rodar: Project Settings → Data API → Exposed schemas → adicionar "presenca" (senão o app não enxerga).
+-- Para desfazer tudo: drop schema presenca cascade; (tira as tabelas da publicação junto; não toca no resto).
 --
 -- Não há papéis: cada conta só lê e grava as PRÓPRIAS linhas (dono = auth.uid()).
 
@@ -48,6 +53,8 @@ create policy "ajustes: só o dono" on presenca.ajustes for all to authenticated
 -- Permissão explícita (funciona mesmo com "Automatically expose new tables" desligado no projeto).
 revoke all on presenca.dias, presenca.ajustes from anon;
 grant select, insert, update, delete on presenca.dias, presenca.ajustes to authenticated;
+-- Manutenção com a chave de administrador (mesmo padrão do Treinos); o app nunca usa a service_role.
+grant all on presenca.dias, presenca.ajustes to service_role;
 
 -- ---------- Tempo real (outro aparelho marcou um dia: este atualiza sozinho) ----------
 do $$
