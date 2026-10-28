@@ -110,6 +110,12 @@ async function entrarNoApp(usuario) {
   state.usuario = usuario;
   authRoot.innerHTML = '<p class="carregando" role="status">Carregando seu calendário…</p>';
   try {
+    if (!(await api.ehUsuario())) {
+      state.usuario = null; // o SIGNED_OUT do api.sair() não redesenha a tela por cima do aviso
+      await api.sair();
+      mostrarEntrar({ aviso: 'Essa conta não está liberada no Presença. Para usar o app, crie uma conta aqui com outro e-mail.' });
+      return;
+    }
     await carregarTudo();
   } catch (err) {
     console.error('[presenca] carga', err);

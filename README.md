@@ -32,7 +32,8 @@ Qualquer servidor estático serve. Pelo Laragon, a pasta precisa estar em `C:\la
 
 O login segue o mesmo esquema dos outros apps (e-mail e senha, confirmação por link, "esqueci a senha").
 Está ligado ao projeto **apps** (`vujhnbiohitufdjpdbvq`), o mesmo da Caderneta e do Treinos: as tabelas ficam no
-schema **`presenca`**, separado dos outros, e o login é o mesmo dos dois apps.
+schema **`presenca`**, separado dos outros. As contas são do projeto, mas o Presença tem a própria lista de
+usuários (`presenca.usuarios`): conta da Caderneta ou do Treinos não entra aqui.
 
 1. **SQL Editor → New query**: cole e rode `supabase/schema.sql`.
 2. **Project Settings → Data API → Exposed schemas**: adicione `presenca` e salve. Sem isso o app mostra
@@ -42,9 +43,11 @@ schema **`presenca`**, separado dos outros, e o login é o mesmo dos dois apps.
 4. Preencha `SUPABASE_URL` e `SUPABASE_KEY` (a chave **publishable**, nunca a service_role) em `js/config.js`.
 5. Abra o app e use **Criar conta**.
 
-Segurança: as duas tabelas têm RLS e cada conta só lê e grava as próprias linhas (`dono = auth.uid()`). Não há
-cadastro prévio nem papéis: qualquer login do projeto usa o app, mas só vê os próprios dias. Se o projeto for
-compartilhado e isso não for o desejado, dá para fechar o cadastro em Authentication → Sign In / Providers.
+Segurança: as tabelas têm RLS. Só quem está em `presenca.usuarios` usa o app, e cada um só lê e grava as próprias
+linhas (`dono = auth.uid()`). Quem cria a conta pelo Presença entra na lista sozinho (gatilho em `auth.users` que
+olha o `app: 'presenca'` do cadastro). Conta que já existia no projeto é barrada no login com um aviso; para
+liberar, rode o `insert` do fim do `schema.sql` com o e-mail dela. Limite do Supabase: o mesmo e-mail é a mesma
+conta (mesma senha) em todos os apps do projeto.
 
 ## App instalável (PWA)
 

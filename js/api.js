@@ -8,7 +8,8 @@
 //    lê e limpa esse hash ANTES do roteador (capturarRetornoEmail).
 //
 // Dados: "dias" (uma linha por dia marcado: presença ou evento) e "ajustes" (uma linha por pessoa).
-// Cada pessoa só enxerga as próprias linhas; não há papéis nem cadastro prévio.
+// Cada pessoa só enxerga as próprias linhas; não há papéis. As contas são do projeto Supabase inteiro (Caderneta,
+// Treinos...), mas só usa o Presença quem está em presenca.usuarios: entra lá quem se cadastra por este app.
 import { SUPABASE_URL, SUPABASE_KEY, SUPABASE_SCHEMA, SUPABASE_LIB, AUTH_STORAGE_KEY, MODO_LOCAL } from './config.js';
 import { todayISO, addDays } from './utils.js';
 import { diasDoMes, diaDaSemana, mesDe, somarMeses } from './domain.js';
@@ -22,7 +23,7 @@ export function mensagemErro(error) {
   const code = String(error?.code || '');
   if (/invalid login credentials/i.test(msg)) return 'E-mail ou senha incorretos.';
   if (/email not confirmed/i.test(msg)) return 'Confirme seu e-mail pelo link que enviamos antes de entrar.';
-  if (/already registered|already been registered/i.test(msg)) return 'Esse e-mail já tem conta. Use “Entrar” ou “Esqueci a senha”.';
+  if (/already registered|already been registered/i.test(msg)) return 'Esse e-mail já tem conta (neste ou em outro app). Use “Entrar” ou cadastre outro e-mail.';
   if (/password should be at least|weak password/i.test(msg)) return 'A senha precisa ter pelo menos 8 caracteres, misturando letras e números.';
   if (/rate limit|too many|over_email_send_rate_limit/i.test(msg + code)) return 'Muitas tentativas seguidas. Espere alguns minutos e tente de novo.';
   if (/failed to fetch|network|load failed/i.test(msg)) return 'Sem conexão com o servidor. Confira a internet e tente de novo.';
@@ -116,6 +117,13 @@ const supa = {
     const { data } = await c.auth.getSession();
     return data.session?.user || null;
   },
+  /** A conta logada está liberada no Presença? (conta só da Caderneta/Treinos: não) */
+  async ehUsuario() {
+    const c = await cliente();
+    const { data, error } = await c.from('usuarios').select('id').maybeSingle();
+    if (error) falhar(error);
+    return !!data;
+  },
   async entrar(email, senha) {
     const c = await cliente();
     const { data, error } = await c.auth.signInWithPassword({ email, password: senha });
@@ -124,8 +132,11 @@ const supa = {
   },
   async cadastrar(email, senha) {
     const c = await cliente();
-    const { data, error } = await c.auth.signUp({ email, password: senha, options: { emailRedirectTo: appUrl() } });
+    // data.app = 'presenca': o gatilho do banco põe a conta nova na lista do Presença (presenca.usuarios).
+    const { data, error } = await c.auth.signUp({ email, password: senha, options: { emailRedirectTo: appUrl(), data: { app: 'presenca' } } });
     if (error) falhar(error);
+    // E-mail que já tem conta: com confirmação ligada o Supabase não dá erro, devolve a conta sem "identities".
+    if (data.user && !data.user.identities?.length) falhar('User already registered');
     // Com confirmação de e-mail ligada, não vem sessão: a pessoa precisa clicar no link.
     return { user: data.user, precisaConfirmar: !data.session };
   },
@@ -219,6 +230,7 @@ const local = {
     return () => window.removeEventListener('storage', fn);
   },
   async usuario() { return { id: 'local', email: 'voce@modo-local' }; },
+  async ehUsuario() { return true; },
   async entrar() { return { id: 'local', email: 'voce@modo-local' }; },
   async cadastrar() { return { precisaConfirmar: false }; },
   async recuperar() {},
